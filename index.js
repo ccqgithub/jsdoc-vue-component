@@ -1,104 +1,12 @@
-/**
- * require vue-template-compiler
- * require @babel/core
- * require @babel/preset-env
- * require require-extension-hooks
- */
 const path = require('path');
 const fs = require('fs');
 const compiler = require('vue-template-compiler');
-const vm = require('vm');
-const Module = require('module');
-const babel = require('@babel/core');
-const register = require('@babel/register');
-const pirates = require('pirates');
 const stripIndent = require('strip-indent');
 const indentString = require('indent-string');
-
-// babelrc
-const babelrc = {
-  "babelrc": false,
-  "presets": [
-    ["@babel/preset-env", {
-      "targets": {
-        "node": "6.10"
-      }
-    }]
-  ]
-};
-
-// transformJsCode
-function transformJsCode(content) {
-  const parsedCode = babel.transform(content, babelrc).code;
-  return parsedCode;
-}
-
-// transformVueComponent
-function transformVueComponent(content) {
-  const parsedComponent = compiler.parseComponent(content);
-  const code = parsedComponent.script ? parsedComponent.script.content : '';
-  return transformJsCode(code);
-}
-
-// getTypeString
-function getTypeString(type) {
-  let str = '';
-
-  [String, Number, Boolean, Function, Object, Array, Symbol].forEach(item => {
-    if (item === type) str = item.name;
-  });
-
-  if (str) return str;
-
-  return Sring(type);
-}
-
-// require hook
-const revert = pirates.addHook(function hook(code, filename) {
-  return transformVueComponent(code);
-}, { exts: ['.vue'], matcher: true });
-
-// revert require hook
-// revert();
-
-// babel register
-register(babelrc);
-
-// getExports
-function getExports(code, fullFilename) {
-  const sandbox = global;
-
-  sandbox.transformJsCode = transformJsCode;
-  sandbox.transformVueComponent = transformVueComponent;
-
-  sandbox.__filename = fullFilename;
-  sandbox.__dirname = path.dirname(fullFilename);
-
-  const mod = new Module(sandbox.__filename);
-  mod.filename = sandbox.__filename;
-  mod.paths = [
-    sandbox.__dirname,
-    ...Module._nodeModulePaths(sandbox.__dirname)
-  ]
-
-  sandbox.exports = mod.exports;
-  sandbox.module = mod;
-  sandbox.require = mod.require.bind(mod);
-
-  // run context
-  const context = vm.createContext(sandbox);
-  const script = new vm.Script(`
-    ${code}
-  `);
-
-  script.runInContext(context);
-
-  // exports
-  return context.exports.default;
-}
+const parse = require('./parse');
 
 // get markdown comment
-function getMarkDown(obj, code) {
+function getMarkDown(obj) {
   let md = '';
 
   // name
@@ -113,8 +21,8 @@ function getMarkDown(obj, code) {
   // props
   md += stripIndent(`
     ## Props
-    | Name  | Type | Default |
-    | ----- | ---- | ------- |
+    | Name  | Type | Required | Default | validator |
+    | ----- | ---- | ------- | ------- | ------- |
   `);
   let props = obj.props || {};
   if (Array.isArray(props)) {
@@ -200,8 +108,8 @@ exports.handlers = {
     if (/\.vue$/.test(e.filename)) {
       const parsedComponent = compiler.parseComponent(e.source);
       const code = parsedComponent.script ? parsedComponent.script.content : '';
-      const parsed = getExports(transformJsCode(code), e.filename);
-      const md = getMarkDown(parsed, code);
+      const parsed = parse(code);
+      const md = getMarkDown(parsed);
 
       markdownCodes[e.filename] = md;
 
