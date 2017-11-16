@@ -223,7 +223,7 @@ function parseCode(code) {
     }
   });
 
-  console.log(parsed)
+  // console.log(parsed)
   return parsed;
 }
 module.exports = parseCode;
