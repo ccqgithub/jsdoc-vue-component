@@ -54,6 +54,9 @@ export default {}
     "plugins/markdown",
     "plugins/summarize"
   ],
+  "jsdoc-vue-component": {
+    "log": true
+  },
   "markdown": {
     "tags": ["author", "classdesc", "description", "param", "property", "returns", "see", "throws", "vue"]
   },

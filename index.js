@@ -4,6 +4,7 @@ const compiler = require('vue-template-compiler');
 const stripIndent = require('strip-indent');
 const indentString = require('indent-string');
 const parse = require('./parse');
+const log = require('./util').log;
 
 // get markdown comment
 function getMarkDown(obj) {
@@ -92,6 +93,8 @@ const markdownCodes = {};
 exports.handlers = {
   beforeParse (e) {
     if (/\.vue$/.test(e.filename)) {
+      log(`parse file begin: ${e.filename}`);
+
       const parsedComponent = compiler.parseComponent(e.source);
       const code = parsedComponent.script ? parsedComponent.script.content : '';
       const parsed = parse(code);

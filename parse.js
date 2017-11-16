@@ -1,8 +1,11 @@
 const esprima = require('esprima');
 const esquery = require('esquery');
 const escodegen = require('escodegen');
+const log = require('./util').log;
 
 function parseProps(item) {
+  log('parse props begin ...');
+
   let props = [];
 
   // props: [], array
@@ -112,6 +115,8 @@ function parseProps(item) {
 }
 
 function parseMethods(item) {
+  log('parse methods begin ...');
+
   let methods = [];
 
   // error methods format
@@ -140,6 +145,8 @@ function parseMethods(item) {
 }
 
 function parseComponents(item) {
+  log('parse components begin ...');
+
   let components = [];
 
   // error format
@@ -158,6 +165,8 @@ function parseComponents(item) {
 }
 
 function parseCode(code) {
+  log('parse code begin ...');
+
   const ast = esprima.parseModule(code);
   const propertyList = esquery(ast, "ExportDefaultDeclaration > .declaration > .properties");
 
