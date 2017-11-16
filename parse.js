@@ -192,7 +192,11 @@ function parseEvents(ast) {
       if (skips.indexOf(node.type) != -1) return estraverse.VisitorOption.Skip;
 
       if (node.type == 'CallExpression') {
-        if (node.callee.property.name == '$emit') {
+        if (
+          node.callee
+          && node.callee.property
+          && node.callee.property.name == '$emit'
+        ) {
           emitList.push(node);
         }
       }
