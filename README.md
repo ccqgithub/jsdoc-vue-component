@@ -36,6 +36,15 @@ just add `@vue` tag, `@exports` tag, to the to document in you vue SFC.
 export default {}
 ```
 
+## 如何使用jsdoc？
+
+- 安装jsdoc: `npm i jsdoc -D`
+- 安装模板：`npm i sherry-docstrap -D`, 原来的[docstrap](https://github.com/docstrap/docstrap)有点小bug还未修复，所以自己暂时发布一个。
+- 在项目目录下建了配置文件：下面有示例，适当修改。
+- 在pacakge.json 里添加一个script: `"jsdoc": "rm -rf public/jsdoc && node_modules/.bin/jsdoc -c jsdoc.json"`, `public/jsdoc`为发布位置，适当修改
+- 生成文档: `npm run jsdoc`
+
+
 ## jsdoc.json
 
 ```json
