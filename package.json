@@ -5,14 +5,14 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccqgithub/rx-hub.git"
+    "url": "git+https://github.com/ccqgithub/jsdoc-vue-component.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ccqgithub/rx-hub/issues"
+    "url": "https://github.com/ccqgithub/jsdoc-vue-component/issues"
   },
-  "homepage": "https://github.com/ccqgithub/rx-hub#readme",
+  "homepage": "https://github.com/ccqgithub/jsdoc-vue-component#readme",
   "dependencies": {
     "escodegen": "^1.9.0",
     "esprima": "^4.0.0",
