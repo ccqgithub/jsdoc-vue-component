@@ -1,6 +1,6 @@
 {
   "name": "jsdoc-vue-component",
-  "version": "2.0.2",
+  "version": "2.1.3",
   "description": "A simple plugin for jsdoc (`pase vue SFC info to description`)",
   "main": "index.js",
   "repository": {
@@ -15,8 +15,7 @@
   "homepage": "https://github.com/ccqgithub/jsdoc-vue-component#readme",
   "dependencies": {
     "escodegen": "^1.9.0",
-    "esprima": "^4.0.0",
-    "esquery": "^1.0.0",
+    "espree": "^3.5.2",
     "indent-string": "^3.2.0",
     "strip-indent": "^2.0.0",
     "vue-template-compiler": "^2.5.3"

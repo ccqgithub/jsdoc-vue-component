@@ -6,7 +6,7 @@ try {
   const env = require('jsdoc/env')
   config = Object.assign({}, config, env.conf['jsdoc-vue-component']);
 } catch (e) {
-  console.log(e);
+  // console.log(e);
 }
 
 function log(message) {
@@ -16,3 +16,4 @@ function log(message) {
 }
 
 exports.config = config;
+exports.log = log;

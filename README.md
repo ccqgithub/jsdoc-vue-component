@@ -2,6 +2,10 @@
 
 > A simple plugin for jsdoc (`pase vue SFC info to description by AST analysis`).
 
+## 注意
+
+> 只解析vue组件中的`module.exports = {}` 和 `export default {}`
+
 ## Installation
 
 ```sh
@@ -10,9 +14,9 @@ npm i jsdoc-vue-component -D
 
 ## Related
 
-- [esprima](https://github.com/jquery/esprima/): parse code to ast.
+- [espree](https://github.com/eslint/espree): parse code to ast.
 - [escodegen](https://github.com/estools/escodegen): generate code from ast.
-- [esquery](https://github.com/estools/esquery): search ast node use `css selector`.
+- [estraverse](https://github.com/estools/estraverse): traverse the AST tree.
 - [JsDoc3](https://github.com/jsdoc3/jsdoc).
 - [docstrap](https://github.com/docstrap/docstrap): a theme for jsdoc3.
 

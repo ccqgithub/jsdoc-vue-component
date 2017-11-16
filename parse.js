@@ -1,7 +1,8 @@
-const esprima = require('esprima');
-const esquery = require('esquery');
+const espree = require('espree');
+const estraverse = require('estraverse');
 const escodegen = require('escodegen');
 const log = require('./util').log;
+const skips = ['ExperimentalSpreadProperty'];
 
 function parseProps(item) {
   log('parse props begin ...');
@@ -42,67 +43,82 @@ function parseProps(item) {
           name: prop.key.name
         };
         // console.log(prop.value.properties)
-        let type = esquery(prop.value, '[key.name="type"]');
-        let required = esquery(prop.value, '[key.name="required"]');
-        let def = esquery(prop.value, '[key.name="default"]');
-        let validator = esquery(prop.value, '[key.name="validator"]');
+        let type;
+        let required;
+        let def;
+        let validator;
+
+        prop.value.properties.forEach(item => {
+          if (item.key.name == 'type') {
+            type = item;
+          }
+          if (item.key.name == 'required') {
+            required = item;
+          }
+          if (item.key.name == 'default') {
+            def = item;
+          }
+          if (item.key.name == 'validator') {
+            validator = item;
+          }
+        });
 
         // prop.type
-        if (type.length) {
+        if (type) {
           // type: function
-          if (type[0].value.type == 'FunctionExpression') {
-            let args = type[0].value.params.map(arg => {
+          if (type.value.type == 'FunctionExpression') {
+            let args = type.value.params.map(arg => {
               return escodegen.generate(arg);
             });
             obj.type = `Function(${args.join(',')})`;
           }
           // type: Number ...
-          if (type[0].value.type == 'Identifier') {
-            obj.type = type[0].value.name;
+          if (type.value.type == 'Identifier') {
+            obj.type = type.value.name;
           }
         }
 
         // prop.required
-        if (required.length) {
-          if (required[0].value.type == 'Identifier') {
-            obj.required = required[0].value.name + '(var)';
+        if (required) {
+          if (required.value.type == 'Identifier') {
+            obj.required = required.value.name + '(var)';
           }
-          if (required[0].value.type == 'Literal') {
-            obj.required = required[0].value.value;
+          if (required.value.type == 'Literal') {
+            obj.required = required.value.value;
           }
         }
 
         // prop: default
-        if (def.length) {
+        if (def) {
           // default: function() {}
-          if (def[0].value.type == 'FunctionExpression') {
-            let args = def[0].value.params.map(arg => {
+          if (def.value.type == 'FunctionExpression') {
+            let args = def.value.params.map(arg => {
               return escodegen.generate(arg);
             });
             obj.default = `Function(${args.join(',')})`;
           }
           // default: a
-          if (def[0].value.type == 'Identifier') {
-            obj.default = def[0].value.name + '(var)';
+          if (def.value.type == 'Identifier') {
+            obj.default = def.value.name + '(var)';
           }
           // default: 2
-          if (def[0].value.type == 'Literal') {
-            obj.default = def[0].value.value;
+          if (def.value.type == 'Literal') {
+            obj.default = def.value.value;
           }
         }
 
         // prop: validator
-        if (validator.length) {
+        if (validator) {
           // default: function() {}
-          if (validator[0].value.type == 'FunctionExpression') {
-            let args = validator[0].value.params.map(arg => {
+          if (validator.value.type == 'FunctionExpression') {
+            let args = validator.value.params.map(arg => {
               return escodegen.generate(arg);
             });
             obj.validator = `Function(${args.join(',')})`;
           }
           // default: Identifier
-          if (validator[0].value.type == 'Identifier') {
-            obj.validator = validator[0].value.name + '(var)';
+          if (validator.value.type == 'Identifier') {
+            obj.validator = validator.value.name + '(var)';
           }
         }
 
@@ -123,6 +139,8 @@ function parseMethods(item) {
   if (item.value.type != 'ObjectExpression') return methods;
 
   item.value.properties.forEach(prop => {
+    if (!prop.value) return;
+
     if (prop.value.type == 'FunctionExpression') {
       let params = prop.value.params.map(p => {
         return escodegen.generate(p);
@@ -164,28 +182,24 @@ function parseComponents(item) {
   return components;
 }
 
-function parseCode(code) {
-  log('parse code begin ...');
-
-  const ast = esprima.parseModule(code);
-  const propertyList = esquery(ast, "ExportDefaultDeclaration > .declaration > .properties");
-
-  const parsed = {
-    name: '',
-    options: [],
-    props: [],
-    events: [],
-    components: [],
-    computeds: [],
-  };
-
+function parseEvents(ast) {
   // find emits
   let events = [];
-  let emitList = esquery(ast, 'ExpressionStatement > .expression[type="CallExpression"]');
+  let emitList = [];
 
-  emitList = emitList.filter(emit => {
-    let find = esquery(emit, '.callee > .property[name="$emit"]');
-    return find.length;
+  estraverse.traverse(ast, {
+    enter: function (node, parent) {
+      if (skips.indexOf(node.type) != -1) return estraverse.VisitorOption.Skip;
+
+      if (node.type == 'CallExpression') {
+        if (node.callee.property.name == '$emit') {
+          emitList.push(node);
+        }
+      }
+    },
+    leave: function (node, parent) {
+      //
+    }
   });
 
   emitList.forEach(emit => {
@@ -206,7 +220,60 @@ function parseCode(code) {
     events.push(obj);
   });
 
-  parsed.events = events;
+  return events;
+}
+
+function parseCode(code) {
+  log('parse code begin ...');
+
+  const ast = espree.parse(code, {
+    ecmaVersion: 9,
+    sourceType: 'module',
+    ecmaFeatures: {
+      experimentalObjectRestSpread: true
+    }
+  });
+
+  const parsed = {
+    name: '',
+    options: [],
+    props: [],
+    events: [],
+    components: [],
+    computeds: [],
+  };
+
+  // find exports
+  let exportObj = null;
+  estraverse.traverse(ast, {
+    enter: function (node, parent) {
+      if (skips.indexOf(node.type) != -1) return estraverse.VisitorOption.Skip;
+
+      // export default
+      if (node.type == 'ExportDefaultDeclaration') {
+        exportObj = node.declaration;
+        this.break();
+      }
+
+      // module.exports
+      if (
+        node.type == 'AssignmentExpression'
+        && node.left.type == 'MemberExpression'
+        && node.left.object.name == 'module'
+        && node.left.property.name == 'exports'
+      ) {
+        exportObj = node.right;
+        this.break();
+      }
+    }
+  });
+
+  if (!exportObj) return parsed;
+
+  let propertyList = exportObj.properties || [];
+
+  // events
+  parsed.events = parseEvents(ast);
 
   // other
   propertyList.forEach(item => {
