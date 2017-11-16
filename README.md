@@ -100,3 +100,7 @@ export default {}
   }
 }
 ```
+
+## 效果
+
+![效果](assets/xiaoguo.jpeg).
