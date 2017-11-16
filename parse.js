@@ -5,23 +5,25 @@ const escodegen = require('escodegen');
 function parseProps(item) {
   let props = [];
 
-  // props: []
+  // props: [], array
   if (item.value.type == 'ArrayExpression') {
     item.value.elements.forEach(elem => {
+      // props: ['a']
       if (elem.type == 'Literal') {
         props.push({
           name: elem.value
         });
       }
+      // props: [var]
       if (elem.type == 'Identifier') {
         props.push({
-          name: elem.name
+          name: elem.name + '(var)'
         });
       }
     });
   }
 
-  // props: {}
+  // props: {}, object
   if (item.value.type == 'ObjectExpression') {
     item.value.properties.forEach(prop => {
       // test: Type
@@ -60,7 +62,7 @@ function parseProps(item) {
         // prop.required
         if (required.length) {
           if (required[0].value.type == 'Identifier') {
-            obj.required = required[0].value.name;
+            obj.required = required[0].value.name + '(var)';
           }
           if (required[0].value.type == 'Literal') {
             obj.required = required[0].value.value;
@@ -78,7 +80,7 @@ function parseProps(item) {
           }
           // default: a
           if (def[0].value.type == 'Identifier') {
-            obj.default = def[0].value.name;
+            obj.default = def[0].value.name + '(var)';
           }
           // default: 2
           if (def[0].value.type == 'Literal') {
@@ -95,6 +97,10 @@ function parseProps(item) {
             });
             obj.validator = `Function(${args.join(',')})`;
           }
+          // default: Identifier
+          if (validator[0].value.type == 'Identifier') {
+            obj.validator = validator[0].value.name + '(var)';
+          }
         }
 
         props.push(obj);
@@ -108,7 +114,7 @@ function parseProps(item) {
 function parseMethods(item) {
   let methods = [];
 
-  // error format
+  // error methods format
   if (item.value.type != 'ObjectExpression') return methods;
 
   item.value.properties.forEach(prop => {
@@ -125,7 +131,7 @@ function parseMethods(item) {
     if (prop.value.type == 'Identifier') {
       methods.push({
         name: prop.key.name,
-        code: prop.value.name
+        code: prop.value.name + '(var)'
       });
     }
   });
@@ -141,7 +147,7 @@ function parseComponents(item) {
 
   item.value.properties.forEach(prop => {
     if (prop.value.type == 'Identifier') {
-      components.push(prop.value.name);
+      components.push(prop.value.name + '(var)');
     }
     if (prop.value.type == 'Literal') {
       components.push(prop.value.value);

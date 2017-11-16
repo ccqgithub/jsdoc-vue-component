@@ -1,6 +1,6 @@
 # jsdoc-vue-component
 
-> A simple plugin for jsdoc (`pase vue SFC info to description`)
+> A simple plugin for jsdoc (`pase vue SFC info to description by AST analysis`).
 
 ## Installation
 
@@ -8,13 +8,24 @@
 npm i jsdoc-vue-component -D
 ```
 
-## Use: must use with markdown plugin
+## Related
 
-> This plugin just extract the component info(Markdown), and instert it into the `@vue`'s position.
+- [esprima](https://github.com/jquery/esprima/): parse code to ast.
+- [escodegen](https://github.com/estools/escodegen): generate code from ast.
+- [esquery](https://github.com/estools/esquery): search ast node use `css selector`.
+- [JsDoc3](https://github.com/jsdoc3/jsdoc).
+- [docstrap](https://github.com/docstrap/docstrap): a theme for jsdoc3.
+
+## Use:
+
+> This plugin just extract the component's info into `markdown` format, and instert it into the `@vue`'s position.
 
 > Not affect other jsdoc features of the code.
 
-just add `@vue` tag to the to document in you vue SFC.
+1. add `@vue` tag to comment.
+2. add `@exports componentName` tag to comment.
+
+just add `@vue` tag, `@exports` tag, to the to document in you vue SFC.
 
 ```js
 /**

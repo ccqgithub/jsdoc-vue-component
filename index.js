@@ -24,36 +24,23 @@ function getMarkDown(obj) {
     | Name  | Type | Required | Default | validator |
     | ----- | ---- | ------- | ------- | ------- |
   `);
-  let props = obj.props || {};
-  if (Array.isArray(props)) {
-    let newProps = {};
-    props.forEach(propName => newProps[propName] = {name: propName});
-    props = newProps;
-  }
-  Object.keys(props).forEach(propName => {
-    let item = props[propName];
-    let type = getTypeString(item.type);
-    let def = typeof item.default === 'function' ? item.default.toString() : String(item.default);
-    md += stripIndent(`| ${propName} | \`${type}\` | \`${def}\` |` + '\n');
+  let props = obj.props || [];
+  props.forEach(prop => {
+    md += stripIndent(`| ${prop.name} | ${prop.type} | ${prop.required} | ${prop.default} | ${prop.validator} |` + '\n');
   });
-  if (!Object.keys(props).length) {
-    md += '| | | |';
+  if (!props.length) {
+    md + '|  |  |  |  |  |';
   }
 
   // events
   md += stripIndent(`
     ## Events
-    | Name  | Value |
-    | ----- | ----- |
+    | Name  | Data | Code |
+    | ----- | ----- | ----- |
   `);
-  let events = [];
-  code.replace(/\$emit\(('|")\s*(.+?)\s*\1/g, function($0, $1, $2) {
-    events.push({
-      name: $2
-    });
-  });
+  let events = obj.events || [];
   events.forEach(item => {
-    md += stripIndent(`| ${item.name} | unknown |` + '\n');
+    md += stripIndent(`| ${item.name} | ${item.data} | ${JSON.stringify(item.code)} |` + '\n');
   });
   if (!events.length) {
     md += stripIndent(`|  |  |`);
@@ -62,25 +49,23 @@ function getMarkDown(obj) {
   // methods
   md += stripIndent(`
     ## Methods
-    | Name  | Params Length |
+    | Name  | Code |
     | ----- | ----- |
   `);
-  let methods = obj.methods || '';
-  Object.keys(methods).forEach(name => {
-    let method = methods[name];
-    let argLength = method.length;
-    md += stripIndent(`| ${name} | ${argLength} |` + '\n');
+  let methods = obj.methods || [];
+  methods.forEach(item => {
+    md += stripIndent(`| ${item.name} | ${item.code} |` + '\n');
   });
-  if (!Object.keys(props).length) {
-    md += '| | | |';
+  if (!methods.length) {
+    md += '| | |';
   }
 
   // Components
   md += stripIndent(`
     ## Components
   `);
-  let components = obj.components || {};
-  Object.keys(components).forEach(key => {
+  let components = obj.components || [];
+  components.forEach(key => {
     md += stripIndent(`
       - ${key}
     `);
@@ -90,7 +75,8 @@ function getMarkDown(obj) {
   md += stripIndent(`
     ## Options
   `);
-  Object.keys(obj).forEach(key => {
+  let options = obj.options || [];
+  options.forEach(key => {
     md += stripIndent(`
       - ${key}
     `);
