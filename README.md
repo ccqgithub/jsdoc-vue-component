@@ -19,22 +19,23 @@ npm i jsdoc-vue-component -D
 - [estraverse](https://github.com/estools/estraverse): traverse the AST tree.
 - [JsDoc3](https://github.com/jsdoc3/jsdoc).
 - [docstrap](https://github.com/docstrap/docstrap): a theme for jsdoc3.
+- [jsdoc-vuedoc](https://github.com/ccqgithub/jsdoc-vuedoc): A jsdoc3 plugin use `@vuedoc/md`.
 
 ## Use:
 
-> This plugin just extract the component's info into `markdown` format, and instert it into the `@vue`'s position.
+> This plugin just extract the component's info into `markdown` format, and instert it into the `@vuedoc`'s position.
 
 > Not affect other jsdoc features of the code.
 
-1. add `@vue` tag to comment.
+1. add `@vuedoc` tag to comment.
 2. add `@exports componentName` tag to comment.
 
-just add `@vue` tag, `@exports` tag, to the to document in you vue SFC.
+just add `@vuedoc` tag, `@exports` tag, to the to document in you vue SFC.
 
 ```js
 /**
  * sidebar component description
- * @vue
+ * @vuedoc
  * @exports component/SideBar
  */
 export default {}
@@ -48,6 +49,10 @@ export default {}
 - 在pacakge.json 里添加一个script: `"jsdoc": "rm -rf public/jsdoc && node_modules/.bin/jsdoc -c jsdoc.json"`, `public/jsdoc`为发布位置，适当修改
 - 生成文档: `npm run jsdoc`
 
+## Options
+
+- `log`: true,
+- `tag`: 'vuedoc'
 
 ## jsdoc.json
 

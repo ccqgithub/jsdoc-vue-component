@@ -5,6 +5,7 @@ const stripIndent = require('strip-indent');
 const indentString = require('indent-string');
 const parse = require('./parse');
 const log = require('./util').log;
+const config = require('./util').config;
 
 // get markdown comment
 function getMarkDown(obj) {
@@ -106,28 +107,23 @@ exports.handlers = {
     }
   },
   jsdocCommentFound(e) {
-    //
-  },
-  symbolFound(e) {
+    const tag = '@' + config.tag;
+
     if (
       /\.vue$/.test(e.filename)
-      && e.astnode.type === 'ExportDefaultDeclaration'
-      && e.comment.indexOf('@vue') != -1
+      && e.comment.indexOf(tag) != -1
     ) {
       let md = markdownCodes[e.filename];
-      e.comment = e.comment.replace(/@vue/, md);
-    }
-  },
-  newDoclet(e) {
-    if (/\.vue$/.test(e.doclet.meta.filename)) {
-      // console.log(e.doclet)
+      e.comment = e.comment.replace(tag, md);
     }
   }
 }
 
 // defineTags
 exports.defineTags = function (dictionary) {
-  dictionary.defineTag('vue', {
+  const tag = config.tag;
+
+  dictionary.defineTag(tag, {
     mustHaveValue: false,
     onTagged (doclet, tag) {
       const componentName = doclet.meta.filename.split('.').slice(0, -1).join('.');

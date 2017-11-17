@@ -1,6 +1,6 @@
 {
   "name": "jsdoc-vue-component",
-  "version": "2.1.4",
+  "version": "2.2.4",
   "description": "A simple plugin for jsdoc (`pase vue SFC info to description`)",
   "main": "index.js",
   "repository": {

@@ -1,5 +1,6 @@
 let config = {
-  log: true
+  log: true,
+  tag: 'vuedoc'
 }
 
 try {
