@@ -2,9 +2,7 @@
 
 > A simple plugin for jsdoc (`pase vue SFC info to description by AST analysis`).
 
-## 注意
-
-> 只解析vue组件中的`module.exports = {}` 和 `export default {}`
+Maybe you will try [jsdoc-vuedoc](https://github.com/ccqgithub/jsdoc-vuedoc), and you have a better experience。
 
 ## Installation
 
